@@ -11,71 +11,118 @@ namespace InstagramScraper.Service
         private readonly ILogger<InstagramService> _logger;
 
         public InstagramService(
-            IHttpClientFactory httpClientFactory,
             IOptions<InstagramApiSettings> settings,
             ILogger<InstagramService> logger)
         {
             _settings = settings.Value;
-            _httpClient = httpClientFactory.CreateClient("InstagramAPI");
             _logger = logger;
-
-            // Configure HttpClient
-            _httpClient.BaseAddress = new Uri($"https://{_settings.ApiHost}/");
-            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient = new HttpClient();
             
-            // Add RapidAPI headers
+            // Add headers exactly as in the working version
             _httpClient.DefaultRequestHeaders.Add("X-RapidAPI-Key", _settings.ApiKey);
             _httpClient.DefaultRequestHeaders.Add("X-RapidAPI-Host", _settings.ApiHost);
-            
-            // Add CORS headers
-            _httpClient.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "*");
-            _httpClient.DefaultRequestHeaders.Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-            _httpClient.DefaultRequestHeaders.Add("Access-Control-Allow-Headers", "Content-Type, X-RapidAPI-Key, X-RapidAPI-Host");
         }
 
         public async Task<InstagramProfile> GetProfileAsync(string username)
         {
             try
             {
-                if (string.IsNullOrEmpty(username))
-                {
-                    throw new ArgumentException("Username cannot be empty", nameof(username));
-                }
-
-                // Create request message to add additional headers if needed
-                var request = new HttpRequestMessage(HttpMethod.Get, $"v1/info?username_or_id_or_url={Uri.EscapeDataString(username)}");
+                // Use the exact same URL construction as the working version
+                var response = await _httpClient.GetAsync($"https://{_settings.ApiHost}/v1/info?username_or_id_or_url={username}");
                 
-                // Add any request-specific headers here if needed
-                request.Headers.Add("Accept", "application/json");
-
-                var response = await _httpClient.SendAsync(request);
-                var responseContent = await response.Content.ReadAsStringAsync();
-
-                _logger.LogInformation("Response Status: {StatusCode}", response.StatusCode);
-                _logger.LogInformation("Response Headers: {Headers}", 
-                    string.Join(", ", response.Headers.Select(h => $"{h.Key}: {string.Join(", ", h.Value)}")));
-
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogError("Request failed. Status: {StatusCode}, Content: {Content}", 
-                        response.StatusCode, responseContent);
-                    
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("API request failed. Status: {StatusCode}, Content: {Content}", 
+                        response.StatusCode, errorContent);
                     throw new HttpRequestException($"API request failed with status code: {response.StatusCode}");
                 }
 
-                var jsonDocument = JsonDocument.Parse(responseContent);
+                response.EnsureSuccessStatusCode();
+                var jsonString = await response.Content.ReadAsStringAsync();
+                var jsonDocument = JsonDocument.Parse(jsonString);
                 var data = jsonDocument.RootElement.GetProperty("data");
 
-                // Rest of your code remains the same...
+                // Helper functions remain the same
+                string GetStringValue(JsonElement element)
+                {
+                    return element.ValueKind switch
+                    {
+                        JsonValueKind.String => element.GetString() ?? "",
+                        JsonValueKind.Number => element.ToString(),
+                        _ => ""
+                    };
+                }
+
+                int GetIntValue(JsonElement element, int defaultValue = 0)
+                {
+                    return element.ValueKind switch
+                    {
+                        JsonValueKind.Number => element.GetInt32(),
+                        _ => defaultValue
+                    };
+                }
+
+                long GetLongValue(JsonElement element, long defaultValue = 0)
+                {
+                    return element.ValueKind switch
+                    {
+                        JsonValueKind.Number => element.GetInt64(),
+                        _ => defaultValue
+                    };
+                }
+
+                var profilePicUrl = data.GetProperty("hd_profile_pic_url_info")
+                                       .GetProperty("url")
+                                       .GetString() ?? "";
+
                 return new InstagramProfile
                 {
-                    // Your existing profile mapping
+                    Username = data.GetProperty("username").GetString() ?? "",
+                    FullName = data.GetProperty("full_name").GetString() ?? "",
+                    Biography = data.GetProperty("biography").GetString() ?? "",
+                    ProfilePicUrl = profilePicUrl,
+                    FollowerCount = data.TryGetProperty("follower_count", out var followerCount) ? GetIntValue(followerCount) : 0,
+                    FollowingCount = data.TryGetProperty("following_count", out var followingCount) ? GetIntValue(followingCount) : 0,
+                    MediaCount = data.TryGetProperty("media_count", out var mediaCount) ? GetIntValue(mediaCount) : 0,
+                    IsVerified = data.GetProperty("is_verified").GetBoolean(),
+                    IsPrivate = data.GetProperty("is_private").GetBoolean(),
+                    Category = data.TryGetProperty("category", out var category) ? category.GetString() : "",
+                    PublicEmail = data.TryGetProperty("public_email", out var email) ? email.GetString() : "",
+                    PublicPhoneNumber = data.TryGetProperty("public_phone_number", out var phone) ? phone.GetString() : "",
+                    ExternalUrl = data.TryGetProperty("external_url", out var url) ? url.GetString() : "",
+                    IsBusiness = data.TryGetProperty("is_business", out var isBusiness) ? isBusiness.GetBoolean() : false,
+                    HasIGTV = data.TryGetProperty("has_igtv", out var hasIgtv) ? hasIgtv.GetBoolean() : false,
+                    AccountType = data.TryGetProperty("account_type", out var accountType) ? GetStringValue(accountType) : "",
+                    TotalIgtvVideos = data.TryGetProperty("total_igtv_videos", out var igtvVideos) ? GetIntValue(igtvVideos) : 0,
+                    LatestReelMedia = data.TryGetProperty("latest_reel_media", out var reelMedia) ? GetLongValue(reelMedia) : 0,
+                    HasGuides = data.TryGetProperty("has_guides", out var hasGuides) ? hasGuides.GetBoolean() : false,
+                    CategoryId = data.TryGetProperty("category_id", out var categoryId) ? GetIntValue(categoryId) : 0,
+                    BusinessContactMethod = data.TryGetProperty("business_contact_method", out var contactMethod) ? contactMethod.GetString() : "",
+                    CanHideCategory = data.TryGetProperty("can_hide_category", out var canHideCategory) ? canHideCategory.GetBoolean() : false,
+                    CanHidePublicContacts = data.TryGetProperty("can_hide_public_contacts", out var canHideContacts) ? canHideContacts.GetBoolean() : false,
+                    DirectMessaging = data.TryGetProperty("direct_messaging", out var directMessaging) ? directMessaging.GetString() : "",
+                    ShowShoppableFeed = data.TryGetProperty("show_shoppable_feed", out var shoppableFeed) ? shoppableFeed.GetBoolean() : false,
+                    ThirdPartyDownloadsEnabled = data.TryGetProperty("third_party_downloads_enabled", out var downloads) ? GetIntValue(downloads) : 0,
+                    BioLinks = data.TryGetProperty("bio_links", out var bioLinks) && bioLinks.ValueKind != JsonValueKind.Null
+                        ? JsonSerializer.Deserialize<List<BioLink>>(bioLinks.GetRawText())
+                        : new List<BioLink>(),
+                    LocationData = data.TryGetProperty("location_data", out var locationData) && locationData.ValueKind != JsonValueKind.Null
+                        ? new LocationData
+                        {
+                            AddressStreet = locationData.TryGetProperty("address_street", out var street) ? street.GetString() : null,
+                            CityName = locationData.TryGetProperty("city_name", out var city) ? city.GetString() : null,
+                            Zip = locationData.TryGetProperty("zip", out var zip) ? zip.GetString() : null,
+                            InstagramLocationId = locationData.TryGetProperty("instagram_location_id", out var locId) ?
+                                (locId.ValueKind == JsonValueKind.Number ? locId.GetInt64() : null) : null
+                        }
+                        : null
                 };
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching Instagram profile for {Username}", username);
-                throw;
+                throw new Exception($"Error fetching Instagram profile: {ex.Message}", ex);
             }
         }
     }

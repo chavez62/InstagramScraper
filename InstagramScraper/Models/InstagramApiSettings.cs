@@ -2,7 +2,7 @@
 {
     public class InstagramApiSettings
     {
-        public string ApiKey { get; set; }
-        public string ApiHost { get; set; }
+        public string ApiHost { get; set; } = "instagram-bulk-profile-scrapper.p.rapidapi.com";
+        public string ApiKey { get; set; } = string.Empty;
     }
 }

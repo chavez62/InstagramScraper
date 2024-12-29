@@ -17,6 +17,7 @@ namespace InstagramScraper.Service
         {
             _settings = settings.Value;
             _httpClient = httpClientFactory.CreateClient("InstagramAPI");
+            _logger = logger;
             
             // Validate API settings
             if (string.IsNullOrEmpty(_settings.ApiHost))
@@ -28,7 +29,6 @@ namespace InstagramScraper.Service
             _httpClient.BaseAddress = new Uri($"https://{_settings.ApiHost}/");
             _httpClient.DefaultRequestHeaders.Add("X-RapidAPI-Key", _settings.ApiKey);
             _httpClient.DefaultRequestHeaders.Add("X-RapidAPI-Host", _settings.ApiHost);
-            _logger = logger;
         }
 
         public async Task<InstagramProfile> GetProfileAsync(string username)
@@ -40,13 +40,15 @@ namespace InstagramScraper.Service
                     throw new ArgumentException("Username cannot be empty", nameof(username));
                 }
 
-                var response = await _httpClient.GetAsync($"https://{_settings.ApiHost}/v1/info?username_or_id_or_url={username}");
+                // Use relative URL since BaseAddress is already set
+                var response = await _httpClient.GetAsync($"v1/info?username_or_id_or_url={Uri.EscapeDataString(username)}");
                 
                 if (!response.IsSuccessStatusCode)
                 {
+                    var errorContent = await response.Content.ReadAsStringAsync();
                     _logger.LogError("API request failed with status code: {StatusCode}, Response: {Response}", 
                         response.StatusCode, 
-                        await response.Content.ReadAsStringAsync());
+                        errorContent);
                     
                     throw new HttpRequestException($"API request failed with status code: {response.StatusCode}");
                 }
@@ -55,7 +57,7 @@ namespace InstagramScraper.Service
                 var jsonDocument = JsonDocument.Parse(jsonString);
                 var data = jsonDocument.RootElement.GetProperty("data");
 
-                // Helper function to safely get string from either string or number
+                // Rest of your code remains the same...
                 string GetStringValue(JsonElement element)
                 {
                     return element.ValueKind switch
@@ -66,7 +68,6 @@ namespace InstagramScraper.Service
                     };
                 }
 
-                // Helper function to safely get int from nullable number
                 int GetIntValue(JsonElement element, int defaultValue = 0)
                 {
                     return element.ValueKind switch
@@ -76,7 +77,6 @@ namespace InstagramScraper.Service
                     };
                 }
 
-                // Helper function to safely get long from nullable number
                 long GetLongValue(JsonElement element, long defaultValue = 0)
                 {
                     return element.ValueKind switch

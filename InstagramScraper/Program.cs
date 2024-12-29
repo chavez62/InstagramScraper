@@ -8,7 +8,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.Configure<InstagramApiSettings>(
     builder.Configuration.GetSection("InstagramApi"));
-builder.Services.AddHttpClient();
+
+// Register HttpClient
+builder.Services.AddHttpClient("InstagramAPI", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
+// Register InstagramService
 builder.Services.AddScoped<InstagramService>();
 
 // Configure forwarded headers for Render.com

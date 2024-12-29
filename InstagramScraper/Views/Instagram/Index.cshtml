@@ -1,0 +1,63 @@
+﻿@{
+    ViewData["Title"] = "Instagram Profile Viewer";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="text-center mb-1">Instagram Profile Viewer</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form id="searchForm" action="@Url.Action("Search", "Instagram")" method="post">
+                        <div class="form-group mb-3">
+                            <label for="username" class="form-label">Enter Instagram Username:</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-instagram"></i>
+                                </span>
+                                <input type="text" class="form-control form-control-lg"
+                                       id="username" name="username" required
+                                       placeholder="e.g. instagram">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 btn-lg" id="searchButton">
+                            <span class="normal-state">
+                                <i class="bi bi-search me-2"></i>Search
+                            </span>
+                            <span class="loading-state d-none">
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                Searching...
+                            </span>
+                        </button>
+                    </form>
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger mt-3">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            @ViewBag.Error
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function (e) {
+            const button = document.getElementById('searchButton');
+            const normalState = button.querySelector('.normal-state');
+            const loadingState = button.querySelector('.loading-state');
+
+            // Show loading state
+            normalState.classList.add('d-none');
+            loadingState.classList.remove('d-none');
+
+            // Disable the button
+            button.disabled = true;
+        });
+    </script>
+}

@@ -1,0 +1,346 @@
+/* Base styles with fresh and contemporary color palette */
+body {
+    background-color: #ececec;
+}
+
+.profile-pic-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-pic {
+    width: 250px;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid #F7F7F7;
+    box-shadow: 0 0 0 2px #2D4059;
+    transition: transform 0.3s ease;
+}
+
+.profile-pic:hover {
+    transform: scale(1.05);
+}
+
+.stats-card {
+    background-color: #F7F7F7;
+    border: 1px solid #F7F7F7;
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(45, 64, 89, 0.1);
+    transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(45, 64, 89, 0.15);
+}
+
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2D4059;
+    transition: color 0.3s ease;
+}
+
+.metric-value:hover {
+    color: #EA5455;
+}
+
+.bio-text {
+    white-space: pre-line;
+    line-height: 1.6;
+    color: #2D4059;
+}
+
+/* Button styling */
+.btn-primary {
+    background-color: #2D4059;
+    border-color: #2D4059;
+    color: #FFFFFF;
+}
+
+.btn-primary:hover {
+    background-color: #EA5455;
+    border-color: #EA5455;
+    color: #FFFFFF;
+}
+
+/* Card header styling */
+.card-header {
+    background-color: #2D4059 !important;
+    border-bottom: none;
+    color: #FFFFFF;
+}
+
+/* Navigation styling */
+.nav-link {
+    color: #2D4059;
+}
+
+.nav-link:hover {
+    color: #EA5455;
+}
+
+/* Badge styling */
+.badge.bg-primary {
+    background-color: #2D4059 !important;
+}
+
+.badge.bg-secondary {
+    background-color: #EA5455 !important;
+}
+
+.badge.bg-success {
+    background-color: #2D4059 !important;
+}
+
+.badge.bg-warning {
+    background-color: #EA5455 !important;
+    color: #FFFFFF;
+}
+
+.animate-pulse {
+    animation: pulse 2s infinite;
+}
+
+.hover-lift {
+    transition: transform 0.2s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-3px);
+}
+
+/* Gradient background for special elements */
+.bg-gradient {
+    background: linear-gradient(45deg, #2D4059, #EA5455);
+}
+
+.text-transparent {
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Form control styling */
+.form-control {
+    border-color: #F7F7F7;
+    background-color: #F7F7F7;
+}
+
+.form-control:focus {
+    border-color: #2D4059;
+    box-shadow: 0 0 0 0.25rem rgba(45, 64, 89, 0.15);
+    background-color: #FFFFFF;
+}
+
+/* Input group styling */
+.input-group-text {
+    background-color: #2D4059;
+    border-color: #2D4059;
+    color: #FFFFFF;
+}
+
+/* Alert styling */
+.alert-danger {
+    background-color: rgba(234, 84, 85, 0.1);
+    border-color: #EA5455;
+    color: #EA5455;
+}
+
+/* Custom text colors */
+.text-primary {
+    color: #2D4059 !important;
+}
+
+.text-muted {
+    color: rgba(45, 64, 89, 0.6) !important;
+}
+
+/* Border colors */
+.border {
+    border-color: #F7F7F7 !important;
+}
+
+/* Icon colors */
+.bi {
+    color: #2D4059;
+}
+
+/* Verified badge styling */
+.verified-badge {
+    color: #EA5455;
+}
+
+/* Link styling */
+a {
+    color: #2D4059;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #EA5455;
+    text-decoration: none;
+}
+
+/* Table styling */
+.table {
+    background-color: #FFFFFF;
+}
+
+.table th {
+    background-color: #2D4059;
+    color: #FFFFFF;
+}
+
+/* Custom background colors */
+.bg-white {
+    background-color: #FFFFFF !important;
+}
+
+/* Shadow utilities */
+.shadow-sm {
+    box-shadow: 0 2px 8px rgba(45, 64, 89, 0.1) !important;
+}
+
+/* Card content areas */
+.card-body {
+    background-color: #FFFFFF;
+}
+
+/* Feature section icons */
+.feature-icon {
+    color: #EA5455;
+    transition: transform 0.3s ease;
+}
+
+.feature-icon:hover {
+    transform: scale(1.1);
+}
+
+/* Stats section highlighting */
+.stats-highlight {
+    color: #EA5455;
+    font-weight: bold;
+}
+
+/* Section dividers */
+.divider {
+    border-top: 2px solid #F7F7F7;
+    margin: 2rem 0;
+}
+
+/* Special hover effects */
+.hover-highlight:hover {
+    color: #EA5455;
+    transition: color 0.3s ease;
+}
+
+
+/* Add these navbar-specific styles to your existing site.css */
+
+main {
+    margin-top: 20px;
+    margin-bottom: 60px; /* Space for footer */
+    min-height: calc(100vh - 140px); /* Adjust for navbar and footer */
+}
+
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-weight: 500;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: #ffffff;
+}
+
+.btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Adjust footer for fixed positioning */
+.footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #f8f9fa;
+    padding: 15px 0;
+    border-top: 1px solid #ddd;
+}
+
+
+/* Loading overlay styles */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.loading-content {
+    text-align: center;
+}
+
+/* Button loading state styles */
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+/* Smooth transitions for loading states */
+.normal-state,
+.loading-state {
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Spinner customization */
+.spinner-border {
+    vertical-align: middle;
+}
+
+/* Optional pulse animation for the loading text */
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.loading-content h4 {
+    animation: pulse 1.5s infinite;
+}

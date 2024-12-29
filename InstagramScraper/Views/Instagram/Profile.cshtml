@@ -1,0 +1,335 @@
+﻿@model InstagramProfile
+
+
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-content">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <h4 class="mt-3 text-primary">Loading Profile...</h4>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Hide loading overlay when page is fully loaded
+        window.addEventListener('load', function() {
+            document.getElementById('loadingOverlay').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }, 500); // Wait for fade out animation
+        });
+    </script>
+}
+
+<div class="container mt-5">
+    <!-- Main Profile Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="stats-card p-4">
+                <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start">
+                    <!-- Profile Picture -->
+                    <div class="me-md-5 mb-3 mb-md-0">
+                        <img src="@Url.Action("ProfileImage", "Instagram", new { imageUrl = Model.ProfilePicUrl })"
+                             alt="@Model.Username"
+                             class="profile-pic"
+                             onerror="this.src='@Url.Action("DefaultProfileImage", "Instagram")'">
+                    </div>
+
+                    <!-- Basic Info -->
+                    <div class="text-center text-md-start flex-grow-1">
+                        <div class="d-flex align-items-center justify-content-center justify-content-md-start mb-3">
+                            <h2 class="mb-0 me-2">@Model.Username</h2>
+                            @if (Model.IsVerified)
+                            {
+                                <span class="verified-badge">
+                                    <i class="bi bi-patch-check-fill"></i>
+                                </span>
+                            }
+                        </div>
+
+                        <!-- Key Metrics -->
+                        <div class="d-flex gap-4 mb-3 justify-content-center justify-content-md-start">
+                            <div class="text-center">
+                                <div class="metric-value">@Model.MediaCount.ToString("N0")</div>
+                                <div class="metric-label">Posts</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="metric-value">@Model.FollowerCount.ToString("N0")</div>
+                                <div class="metric-label">Followers</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="metric-value">@Model.FollowingCount.ToString("N0")</div>
+                                <div class="metric-label">Following</div>
+                            </div>
+                        </div>
+
+                        <h6 class="mb-2">@Model.FullName</h6>
+                        @if (!string.IsNullOrEmpty(Model.Category))
+                        {
+                            <div class="text-muted mb-2">
+                                <i class="bi bi-bookmark me-1"></i>@Model.Category
+                            </div>
+                        }
+                        <p class="bio-text mb-2">@Model.Biography</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Engagement & Analytics -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="stats-card p-3 h-100">
+                <h5 class="mb-3"><i class="bi bi-graph-up me-2"></i>Account Growth</h5>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Avg. Posts per Month:</span>
+                    <span class="fw-bold">@((Model.MediaCount / 12.0).ToString("N1"))</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Followers/Following Ratio:</span>
+                    <span class="fw-bold">@((Model.FollowerCount / (double)Model.FollowingCount).ToString("N1"))</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="stats-card p-3 h-100">
+                <h5 class="mb-3"><i class="bi bi-person-badge me-2"></i>Account Status</h5>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Account Type:</span>
+                    <span class="badge bg-primary">@(Model.Category ?? "Personal")</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Verified Status:</span>
+                    <span class="badge @(Model.IsVerified ? "bg-success" : "bg-secondary")">
+                        @(Model.IsVerified ? "Verified" : "Not Verified")
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="stats-card p-3 h-100">
+                <h5 class="mb-3"><i class="bi bi-shield-check me-2"></i>Privacy Settings</h5>
+                <div class="mb-2">
+                    <i class="bi bi-lock me-2"></i>Private Account:
+                    <span class="badge @(Model.IsPrivate ? "bg-warning" : "bg-success")">
+                        @(Model.IsPrivate ? "Yes" : "No")
+                    </span>
+                </div>
+                <div>
+                    <i class="bi bi-briefcase me-2"></i>Business Account:
+                    <span class="badge @(Model.IsBusiness ? "bg-primary" : "bg-secondary")">
+                        @(Model.IsBusiness ? "Yes" : "No")
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Information -->
+    @if (!string.IsNullOrEmpty(Model.PublicEmail) || !string.IsNullOrEmpty(Model.PublicPhoneNumber) || !string.IsNullOrEmpty(Model.ExternalUrl))
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="stats-card p-4">
+                    <h5 class="mb-3"><i class="bi bi-person-lines-fill me-2"></i>Contact Information</h5>
+                    <div class="row">
+                        @if (!string.IsNullOrEmpty(Model.PublicEmail))
+                        {
+                            <div class="col-md-4 mb-2">
+                                <i class="bi bi-envelope me-2"></i>
+                                <a href="mailto:@Model.PublicEmail" class="text-decoration-none">@Model.PublicEmail</a>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.PublicPhoneNumber))
+                        {
+                            <div class="col-md-4 mb-2">
+                                <i class="bi bi-telephone me-2"></i>
+                                <a href="tel:@Model.PublicPhoneNumber" class="text-decoration-none">@Model.PublicPhoneNumber</a>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.ExternalUrl))
+                        {
+                            <div class="col-md-4 mb-2">
+                                <i class="bi bi-link-45deg me-2"></i>
+                                <a href="@Model.ExternalUrl" target="_blank" class="text-decoration-none">@Model.ExternalUrl</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Additional Features -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="stats-card p-4">
+                <h5 class="mb-3"><i class="bi bi-gear me-2"></i>Account Features</h5>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-camera-video me-2"></i>
+                            <span>IGTV: @(Model.HasIGTV ? "Available" : "Not Available")</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-compass me-2"></i>
+                            <span>Business Tools: @(Model.IsBusiness ? "Enabled" : "Disabled")</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-chat-dots me-2"></i>
+                            <span>Direct Messages: Available</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-bookmark-star me-2"></i>
+                            <span>Category: @(Model.Category ?? "Not Set")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Account Analytics -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="stats-card p-4">
+            <h5 class="mb-3">
+                <i class="bi bi-bar-chart-fill me-2"></i>Detailed Analytics
+            </h5>
+            <div class="row g-3">
+                <!-- Media Details -->
+                <div class="col-md-4">
+                    <div class="p-3 border rounded">
+                        <h6><i class="bi bi-collection me-2"></i>Media Analysis</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="bi bi-image me-2"></i>Total Posts: @Model.MediaCount.ToString("N0")</li>
+                            <li class="mb-2"><i class="bi bi-camera-video me-2"></i>IGTV Videos: @Model.TotalIgtvVideos</li>
+                            <li class="mb-2"><i class="bi bi-film me-2"></i>Latest Reel: @(Model.LatestReelMedia > 0 ? "Active" : "No Reels")</li>
+                            <li><i class="bi bi-journal-text me-2"></i>Has Guides: @(Model.HasGuides ? "Yes" : "No")</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Professional Features -->
+                <div class="col-md-4">
+                    <div class="p-3 border rounded">
+                        <h6><i class="bi bi-briefcase me-2"></i>Professional Features</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="bi bi-tag me-2"></i>Category ID: @Model.CategoryId</li>
+                            <li class="mb-2"><i class="bi bi-chat me-2"></i>Contact Method: @Model.BusinessContactMethod</li>
+                            <li class="mb-2"><i class="bi bi-eye me-2"></i>Can Hide Category: @(Model.CanHideCategory ? "Yes" : "No")</li>
+                            <li><i class="bi bi-person-lock me-2"></i>Can Hide Contacts: @(Model.CanHidePublicContacts ? "Yes" : "No")</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Account Settings -->
+                <div class="col-md-4">
+                    <div class="p-3 border rounded">
+                        <h6><i class="bi bi-gear-fill me-2"></i>Account Settings</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="bi bi-person-badge me-2"></i>Account Type: @Model.AccountType</li>
+                            <li class="mb-2"><i class="bi bi-chat-dots me-2"></i>Direct Messages: @(string.IsNullOrEmpty(Model.DirectMessaging) ? "Enabled" : Model.DirectMessaging)</li>
+                            <li class="mb-2"><i class="bi bi-shop me-2"></i>Shoppable Feed: @(Model.ShowShoppableFeed ? "Yes" : "No")</li>
+                            <li><i class="bi bi-download me-2"></i>Allow Downloads: @(Model.ThirdPartyDownloadsEnabled == 1 ? "Yes" : "No")</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bio Links Section -->
+@if (Model.BioLinks != null && Model.BioLinks.Any())
+{
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="stats-card p-4">
+                <h5 class="mb-3">
+                    <i class="bi bi-link-45deg me-2"></i>Bio Links
+                </h5>
+                <div class="row g-3">
+                    @foreach (var link in Model.BioLinks)
+                    {
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded">
+                                <div class="d-flex align-items-center">
+                                    @if (!string.IsNullOrEmpty(link.IconUrl))
+                                    {
+                                        <img src="@link.IconUrl" alt="link icon" class="me-2" style="width: 20px; height: 20px;" />
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-link-45deg me-2"></i>
+                                    }
+                                    <h6 class="mb-0">@(string.IsNullOrEmpty(link.Title) ? "Link" : link.Title)</h6>
+                                </div>
+                                <p class="mb-2 text-muted small">@link.LinkType</p>
+                                <a href="@link.Url" target="_blank" class="text-decoration-none">
+                                    Visit Link <i class="bi bi-box-arrow-up-right ms-1"></i>
+                                </a>
+                                @if (link.IsPinned)
+                                {
+                                    <span class="badge bg-primary ms-2">Pinned</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Location Data -->
+@if (Model.LocationData != null)
+{
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="stats-card p-4">
+                <h5 class="mb-3">
+                    <i class="bi bi-geo-alt-fill me-2"></i>Location Information
+                </h5>
+                <div class="row">
+                    @if (!string.IsNullOrEmpty(Model.LocationData.CityName))
+                    {
+                        <div class="col-md-4 mb-2">
+                            <i class="bi bi-building me-2"></i>
+                            <strong>City:</strong> @Model.LocationData.CityName
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.LocationData.AddressStreet))
+                    {
+                        <div class="col-md-4 mb-2">
+                            <i class="bi bi-house me-2"></i>
+                            <strong>Address:</strong> @Model.LocationData.AddressStreet
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.LocationData.Zip))
+                    {
+                        <div class="col-md-4 mb-2">
+                            <i class="bi bi-mailbox me-2"></i>
+                            <strong>ZIP:</strong> @Model.LocationData.Zip
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+}

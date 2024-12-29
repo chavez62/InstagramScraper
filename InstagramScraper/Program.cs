@@ -10,10 +10,15 @@ builder.Services.Configure<InstagramApiSettings>(
     builder.Configuration.GetSection("InstagramApi"));
 
 // Register HttpClient
-builder.Services.AddHttpClient("InstagramAPI", client =>
-{
-    client.Timeout = TimeSpan.FromSeconds(30);
-});
+builder.Services.AddHttpClient("InstagramAPI")
+    .ConfigureHttpClient(client =>
+    {
+        client.Timeout = TimeSpan.FromSeconds(30);
+    })
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        AllowAutoRedirect = true
+    });
 
 // Register InstagramService
 builder.Services.AddScoped<InstagramService>();

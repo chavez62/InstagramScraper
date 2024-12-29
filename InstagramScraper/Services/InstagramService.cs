@@ -17,6 +17,15 @@ namespace InstagramScraper.Service
         {
             _settings = settings.Value;
             _httpClient = httpClientFactory.CreateClient("InstagramAPI");
+            
+            // Validate API settings
+            if (string.IsNullOrEmpty(_settings.ApiHost))
+                throw new ArgumentException("API Host cannot be empty", nameof(_settings.ApiHost));
+            if (string.IsNullOrEmpty(_settings.ApiKey))
+                throw new ArgumentException("API Key cannot be empty", nameof(_settings.ApiKey));
+
+            // Set base address and headers
+            _httpClient.BaseAddress = new Uri($"https://{_settings.ApiHost}/");
             _httpClient.DefaultRequestHeaders.Add("X-RapidAPI-Key", _settings.ApiKey);
             _httpClient.DefaultRequestHeaders.Add("X-RapidAPI-Host", _settings.ApiHost);
             _logger = logger;

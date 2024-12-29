@@ -4,32 +4,10 @@ using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
-
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.Configure<InstagramApiSettings>(
     builder.Configuration.GetSection("InstagramApi"));
-
-// Configure HttpClient
-builder.Services.AddHttpClient("InstagramAPI", client =>
-{
-    client.Timeout = TimeSpan.FromSeconds(30);
-})
-.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-{
-    UseCookies = false,
-    AllowAutoRedirect = true
-});
 
 // Register InstagramService
 builder.Services.AddScoped<InstagramService>();
@@ -53,9 +31,6 @@ if (!app.Environment.IsDevelopment())
 
 // Important: Place UseForwardedHeaders at the top of the middleware pipeline
 app.UseForwardedHeaders();
-
-// Use CORS before other middleware
-app.UseCors("AllowAll");
 
 // Handle HTTPS redirection
 if (!app.Environment.IsDevelopment()) 
